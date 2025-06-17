@@ -1,6 +1,5 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, type ReactNode, useEffect, useState } from "react";
 import type { Task } from "../entities/Task";
-import { tasksService } from "../services/api";
 
 export interface TasksContextData {
   tasks: Task[];
@@ -14,21 +13,40 @@ export interface TasksContextData {
 
 export const TasksContext = createContext({} as TasksContextData);
 
-interface TasksContextProvidersProps {
+interface TasksContextProviderProps {
   children: ReactNode;
 }
 
-export const TasksContextProvider: React.FC<TasksContextProvidersProps> = ({
+const TASKS_STORAGE_KEY = "kanban_tasks";
+
+function getTasksFromStorage(): Task[] {
+  const data = localStorage.getItem(TASKS_STORAGE_KEY);
+  if (!data) return [];
+  try {
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
+
+function saveTasksToStorage(tasks: Task[]) {
+  localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(tasks));
+}
+
+export const TasksContextProvider: React.FC<TasksContextProviderProps> = ({
   children,
 }) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>(getTasksFromStorage());
 
   useEffect(() => {
-    tasksService.fetchTasks().then((data) => setTasks(data));
-  }, []);
+    saveTasksToStorage(tasks);
+  }, [tasks]);
 
   const createTask = async (attributes: Omit<Task, "id">) => {
-    const newTask = await tasksService.createTask(attributes);
+    const newTask: Task = {
+      ...attributes,
+      id: crypto.randomUUID(),
+    };
     setTasks((currentState) => [...currentState, newTask]);
   };
 
@@ -39,13 +57,14 @@ export const TasksContextProvider: React.FC<TasksContextProvidersProps> = ({
     setTasks((currentState) => {
       const updatedTasks = [...currentState];
       const taskIndex = updatedTasks.findIndex((task) => task.id === id);
-      Object.assign(updatedTasks[taskIndex], attributes);
+      if (taskIndex !== -1) {
+        Object.assign(updatedTasks[taskIndex], attributes);
+      }
       return updatedTasks;
     });
   };
 
   const deleteTask = async (id: string) => {
-    await tasksService.deleteTask(id);
     setTasks((currentState) => currentState.filter((task) => task.id !== id));
   };
 
