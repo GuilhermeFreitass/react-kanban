@@ -23,7 +23,7 @@ const CreateTaskSchema = z.object({
 export const CreateTaskForm: React.FC = () => {
   const { createTask } = useTasks();
 
-  const handleSubmit: FormEvent<HTMLFormElement> = async (ev) => {
+  const handleSubmit = async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     const formData = new FormData(ev.currentTarget);
 
