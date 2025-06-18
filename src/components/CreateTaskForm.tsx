@@ -10,6 +10,7 @@ import {
   TextField,
 } from "@radix-ui/themes";
 import type { FormEvent } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { useTasks } from "../hooks/useTasks";
 
@@ -22,6 +23,7 @@ const CreateTaskSchema = z.object({
 
 export const CreateTaskForm: React.FC = () => {
   const { createTask } = useTasks();
+  const [open, setOpen] = useState(false);
 
   const handleSubmit = async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
@@ -41,9 +43,10 @@ export const CreateTaskForm: React.FC = () => {
       priority,
     });
     await createTask(taskData);
+    setOpen(false); // Fecha o modal após criar
   };
   return (
-    <Dialog.Root>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger>
         <Button>
           <PlusIcon /> Nova Tarefa

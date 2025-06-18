@@ -1,0 +1,7 @@
+@media (max-width: 768px) {
+  .kanban-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+  }
+}

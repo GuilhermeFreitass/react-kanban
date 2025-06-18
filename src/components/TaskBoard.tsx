@@ -14,7 +14,7 @@ export const TaskBoard: React.FC = () => {
 
   return (
     <ScrollArea scrollbars="horizontal">
-      <Grid columns={"3"} gap={"4"} minWidth={"64rem"}>
+      <Grid columns={"3"} gap={"4"} minWidth={"64rem"} className="kanban-grid">
         <Flex direction="column" gap={"4"}>
           <Badge size={"3"} color="gray">
             Para Fazer({tasksTodo.length})
